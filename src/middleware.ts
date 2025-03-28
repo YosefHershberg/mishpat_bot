@@ -27,6 +27,5 @@ export const config = {
   matcher: [
     // Match all routes except for API routes, static files, and images
     "/((?!api|_next/static|_next/image|favicon.ico|images).*)",
-    ...protectedRoutes,
-  ],
+  ].concat(protectedRoutes),
 }
