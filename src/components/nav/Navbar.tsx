@@ -18,7 +18,7 @@ export default async function Navbar() {
                 <ThemeButton />
 
                 {session?.user && (
-                        <UserDropdown>
+                        <UserDropdown session={session}>
                             <Image
                                 src={session?.user?.image as string}
                                 alt='user-avatar'
