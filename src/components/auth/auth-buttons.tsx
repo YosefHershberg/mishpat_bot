@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { signIn, signOut } from "next-auth/react"
 import { Button } from "../ui/button"
-import { useParams, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 
 type AuthButtonProps = {
     children: React.ReactNode,

@@ -9,6 +9,8 @@ export default async function ChatLayout({
 }) {
     const { id } = await params ?? {};
 
+    console.log(id);
+
     return (
         <SidebarProvider>
             <SidebarTrigger className="sm:hidden flex absolute top-0 left-0 m-2" />

@@ -20,7 +20,7 @@ export default function ChatDemo(props: ChatDemoProps) {
   } = useChat(props)
 
   return (
-    <div className="h-screen w-full flex justify-center sm:p-10 p-5">
+    <div className="h-screen w-full flex jus-center sm:p-10 p-5">
       <Chat
         className="grow max-w-[50rem]"
         messages={messages}

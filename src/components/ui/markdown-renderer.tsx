@@ -1,5 +1,5 @@
 import React, { Suspense } from "react"
-import Markdown from "react-markdown"
+import Markdown, { type Components } from "react-markdown"
 import remarkGfm from "remark-gfm"
 
 import { cn } from "@/lib/utils"
@@ -12,20 +12,20 @@ interface MarkdownRendererProps {
 export function MarkdownRenderer({ children }: MarkdownRendererProps) {
   return (
     <div className="space-y-3">
-      <Markdown remarkPlugins={[remarkGfm]} components={COMPONENTS}>
+      <Markdown remarkPlugins={[remarkGfm]} components={COMPONENTS as Components}>
         {children}
       </Markdown>
     </div>
   )
 }
 
-interface HighlightedPre extends React.HTMLAttributes<HTMLPreElement> {
+interface HighlightedPreProps extends React.HTMLAttributes<HTMLPreElement> {
   children: string
   language: string
 }
 
 const HighlightedPre = React.memo(
-  async ({ children, language, ...props }: HighlightedPre) => {
+  async ({ children, language, ...props }: HighlightedPreProps) => {
     const { codeToTokens, bundledLanguages } = await import("shiki")
 
     if (!(language in bundledLanguages)) {
@@ -45,8 +45,8 @@ const HighlightedPre = React.memo(
       <pre {...props}>
         <code>
           {tokens.map((line, lineIndex) => (
-            <>
-              <span key={lineIndex}>
+            <React.Fragment key={lineIndex}>
+              <span>
                 {line.map((token, tokenIndex) => {
                   const style =
                     typeof token.htmlStyle === "string"
@@ -65,7 +65,7 @@ const HighlightedPre = React.memo(
                 })}
               </span>
               {lineIndex !== tokens.length - 1 && "\n"}
-            </>
+            </React.Fragment>
           ))}
         </code>
       </pre>
@@ -117,24 +117,28 @@ const CodeBlock = ({
   )
 }
 
-function childrenTakeAllStringContents(element: any): string {
+function childrenTakeAllStringContents(element: React.ReactNode): string {
   if (typeof element === "string") {
     return element
   }
 
-  if (element?.props?.children) {
-    let children = element.props.children
+  if (React.isValidElement<{ children?: React.ReactNode }>(element) && element.props.children) {
+    const children = element.props.children
 
     if (Array.isArray(children)) {
       return children
         .map((child) => childrenTakeAllStringContents(child))
         .join("")
-    } else {
-      return childrenTakeAllStringContents(children)
     }
+    return childrenTakeAllStringContents(children)
   }
 
   return ""
+}
+
+interface CodeProps extends React.HTMLAttributes<HTMLElement> {
+  className?: string
+  children?: React.ReactNode
 }
 
 const COMPONENTS = {
@@ -146,7 +150,7 @@ const COMPONENTS = {
   strong: withClass("strong", "font-semibold"),
   a: withClass("a", "text-primary underline underline-offset-2"),
   blockquote: withClass("blockquote", "border-l-2 border-primary pl-4"),
-  code: ({ children, className, node, ...rest }: any) => {
+  code: ({ children, className, ...rest }: CodeProps) => {
     const match = /language-(\w+)/.exec(className || "")
     return match ? (
       <CodeBlock className={className} language={match[1]} {...rest}>
@@ -163,7 +167,7 @@ const COMPONENTS = {
       </code>
     )
   },
-  pre: ({ children }: any) => children,
+  pre: ({ children }: { children: React.ReactNode }) => children,
   ol: withClass("ol", "list-decimal space-y-2 pl-6"),
   ul: withClass("ul", "list-disc space-y-2 pl-6"),
   li: withClass("li", "my-1.5"),
@@ -184,8 +188,12 @@ const COMPONENTS = {
   hr: withClass("hr", "border-foreground/20"),
 }
 
-function withClass(Tag: keyof JSX.IntrinsicElements, classes: string) {
-  const Component = ({ node, ...props }: any) => (
+function withClass<T extends keyof JSX.IntrinsicElements>(
+  Tag: T,
+  classes: string
+) {
+  const Component = ({ ...props }: JSX.IntrinsicElements[T]) => (
+    // @ts-expect-error - TypeScript doesn't like the dynamic tag here
     <Tag className={classes} {...props} />
   )
   Component.displayName = Tag
