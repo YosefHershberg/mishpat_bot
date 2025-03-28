@@ -1,3 +1,4 @@
+import Image from "next/image";
 
 type IconProps = {
   src: string;
@@ -15,11 +16,11 @@ const Icon: React.FC<IconProps> = ({
   className = '',
 }) => {
   return (
-    <img
+    <Image
       src={src}
       alt={alt}
-      width={width}
-      height={height}
+      width={Number(width)}
+      height={Number(height)}
       className={className}
     />
   );
