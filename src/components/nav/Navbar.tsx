@@ -1,14 +1,11 @@
-'use client'
-
-import { useSession } from 'next-auth/react'
 import { UserDropdown } from '../auth/UserDropdown'
-import LoadingSpinner from "../ui/LoadingSpinner";
 import { Logo } from '../Logo'
 import Image from 'next/image'
 import ThemeButton from '../ThemeButton'
+import { auth } from '@/lib/auth';
 
-export default function Navbar() {
-    const { data: session, status } = useSession()
+export default async function Navbar() {
+    const session = await auth()
 
     return (
         <nav
@@ -20,11 +17,7 @@ export default function Navbar() {
             <div className='flex items-center gap-4'>
                 <ThemeButton />
 
-                {status === 'loading' ?
-                    <LoadingSpinner
-                        className='size-10'
-                    /> :
-                    session && (
+                {session?.user && (
                         <UserDropdown>
                             <Image
                                 src={session?.user?.image as string}

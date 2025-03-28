@@ -1,11 +1,9 @@
-'use client'
-
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
-import { Calendar, Home, Inbox, MessageSquarePlus, Search, Settings } from "lucide-react"
-import { Logo, LogoIcon } from "@/components/Logo"
-import SidebarUserDropdown from "./SidebarUserButton"
-import { cn } from "@/lib/utils"
-import { Button } from "../ui/button"
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
+import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
+import SidebarUserButton from "./SidebarUserButton"
+import SidebarCustomHeader from "./SidebarHeader"
+import { auth } from "@/lib/auth"
+import { type Session } from "next-auth"
 
 const items = [
     {
@@ -35,36 +33,16 @@ const items = [
     },
 ]
 
-export function AppSidebar() {
-    const { state } = useSidebar()
-    const open = state === "expanded"
+export async function AppSidebar() {
+    const session = await auth()
 
     return (
         <Sidebar collapsible="icon" className="py-1.5">
-            <SidebarHeader className={cn('flex flex-col items-center', open && 'gap-5')}>
-                <div className={cn(
-                    "w-full flex items-center",
-                    open ? 'justify-between flex-row' : 'justify-center items-center flex-col gap-6 my-3'
-                )}>
-                    {open ? <Logo size='small' /> : <LogoIcon size={35} />}
-                    <SidebarTrigger />
-                </div>
-                <Button
-                    variant="outline"
-                    size="icon"
-                    className={cn(
-                        'size-10',
-                        open ? 'w-full' : 'aspect-square'
-                    )}
-                >
-                    <MessageSquarePlus />
-                    <p className={open ? 'block' : 'hidden'}>New Chat</p>
-                </Button>
-            </SidebarHeader>
+            <SidebarCustomHeader />
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarGroupLabel>Application</SidebarGroupLabel>
-                    {open && <SidebarGroupContent>
+                    <SidebarGroupContent>
                         <SidebarMenu>
                             {items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
@@ -77,11 +55,11 @@ export function AppSidebar() {
                                 </SidebarMenuItem>
                             ))}
                         </SidebarMenu>
-                    </SidebarGroupContent>}
+                    </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
-                <SidebarUserDropdown />
+                <SidebarUserButton session={session as Session} />
             </SidebarFooter>
         </Sidebar>
     )

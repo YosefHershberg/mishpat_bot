@@ -2,14 +2,13 @@
 
 import React from 'react'
 import { Button } from '../ui/button'
-import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useSidebar } from '@/components/ui/sidebar'
 import { UserDropdown } from '@/components/auth/UserDropdown'
+import type { Session } from 'next-auth'
 
 
-export default function SidebarUserButton() {
-  const { data: session } = useSession()
+export default function SidebarUserButton({ session }: { session: Session }) {
   const { open } = useSidebar()
 
   const classNames = open ?
@@ -17,7 +16,7 @@ export default function SidebarUserButton() {
     'rounded-full h-10 w-10 flex items-center justify-center'
 
   return (
-    <UserDropdown>
+    <UserDropdown session={session as Session}>
       <Button
         variant='ghost'
         size={open ? 'default' : 'icon'}

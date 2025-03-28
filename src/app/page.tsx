@@ -1,16 +1,11 @@
-'use client';
-
 import Navbar from "@/components/nav/Navbar";
 import { ChevronRight } from "lucide-react";
-import { useTheme } from "next-themes";
 import Link from "next/link";
 
 export default function Home() {
-  const { theme } = useTheme();
 
   return (
     <main className={`
-    ${theme === 'light' ? 'bg-[url("/assets/light-blue-background.webp")]' : ''} 
     bg-cover bg-center h-screen w-screen absolute top-0 flex-1 flex flex-col items-center`}>
       <Navbar />
 
