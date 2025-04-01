@@ -4,13 +4,13 @@ import { signIn, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export const getUsers = async () => {
-    return prisma.user.findMany();
+    return await prisma.user.findMany();
 }
 
 export const login = async () => {
-    await signIn("google", { redirectTo: "/" });
+    return await signIn("google", { redirectTo: "/" });
 };
 
 export const logout = async () => {
-    await signOut({ redirectTo: "/" });
+    return await signOut({ redirectTo: "/" });
 };

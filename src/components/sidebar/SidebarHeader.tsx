@@ -5,6 +5,7 @@ import { MessageSquarePlus } from "lucide-react"
 import { Logo, LogoIcon } from "@/components/Logo"
 import { cn } from "@/lib/utils"
 import { Button } from "../ui/button"
+import Link from "next/link"
 
 
 export default function SidebarCustomHeader() {
@@ -27,9 +28,12 @@ export default function SidebarCustomHeader() {
                     'size-10',
                     open ? 'w-full' : 'aspect-square'
                 )}
+                asChild
             >
-                <MessageSquarePlus />
-                <p className={open ? 'block' : 'hidden'}>New Chat</p>
+                <Link href="/chat">
+                    <MessageSquarePlus />
+                    <p className={open ? 'block' : 'hidden'}>New Chat</p>
+                </Link>
             </Button>
         </SidebarHeader>
     )

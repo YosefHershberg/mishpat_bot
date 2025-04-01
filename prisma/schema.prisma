@@ -18,6 +18,8 @@ model User {
   // Optional for WebAuthn support
   Authenticator Authenticator[]
 
+    conversations Conversation[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -76,3 +78,39 @@ model Authenticator {
 
   @@id([userId, credentialID])
 }
+
+model Conversation {
+  id        String    @id @default(cuid())
+  userId    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message[]
+  title     String
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  content   String
+  role      MessageRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationship to conversation
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  // Polymorphic parts using JSON (consider a more structured approach if needed)
+  parts Json?
+
+  // Indexes for better query performance
+  @@index([conversationId])
+  @@index([createdAt])
+}
+
+enum MessageRole {
+  system
+  user
+  assistant
+}
+

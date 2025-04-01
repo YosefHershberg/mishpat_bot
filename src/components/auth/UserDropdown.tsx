@@ -10,7 +10,7 @@ import {
 import Image from 'next/image'
 import { LogOut } from "lucide-react";
 import { Logo } from "@/components//Logo";
-import { logout } from "@/lib/actions/auth";
+import { logout } from "@/lib/actions/auth.service";
 import { type Session } from "next-auth";
 
 type UserDropdownProps = {
