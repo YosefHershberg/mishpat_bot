@@ -24,6 +24,7 @@ interface ChatPropsBase {
     options?: { experimental_attachments?: FileList }
   ) => void
   messages: Array<Message>
+  title: string
   input: string
   className?: string
   handleInputChange: React.ChangeEventHandler<HTMLTextAreaElement>
@@ -33,7 +34,7 @@ interface ChatPropsBase {
     messageId: string,
     rating: "thumbs-up" | "thumbs-down"
   ) => void
-  
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setMessages?: (messages: any[]) => void
   transcribeAudio?: (blob: Blob) => Promise<string>
@@ -64,6 +65,7 @@ export function Chat({
   onRateResponse,
   setMessages,
   transcribeAudio,
+  title
 }: ChatProps) {
   const lastMessage = messages.at(-1)
   const isEmpty = messages.length === 0
@@ -162,6 +164,7 @@ export function Chat({
 
       {messages.length > 0 ? (
         <ChatMessages messages={messages}>
+          <h1 className="text-center mb-6 sticky py-1 top-0 z-100 backdrop-blur-sm">{title}</h1>
           <MessageList
             messages={messages}
             isTyping={isTyping}
@@ -209,7 +212,7 @@ export function ChatMessages({
 
   return (
     <div
-      className="grid grid-cols-1 overflow-y-auto pb-4"
+      className="grid grid-cols-1 overflow-y-auto pb-4 px-4"
       ref={containerRef}
       onScroll={handleScroll}
       onTouchStart={handleTouchStart}

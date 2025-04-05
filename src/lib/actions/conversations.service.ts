@@ -13,5 +13,14 @@ export const getConversationById = async (id: string) => {
     })
 
     return conversation
+}
 
+export const getUserConversationsById = async (userId: string) => {
+    const conversations = await prisma.conversation.findMany({
+        where: {
+            userId,
+        },
+    })
+
+    return conversations
 }

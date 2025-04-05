@@ -5,10 +5,8 @@ import Link from "next/link";
 export default function Home() {
 
   return (
-    <main className={`
-    bg-cover bg-center h-screen w-screen absolute top-0 flex-1 flex flex-col items-center`}>
+    <main className='bg-cover bg-center h-screen w-screen absolute top-0 flex-1 flex flex-col items-center'>
       <Navbar />
-
       <section className="flex-1 flex flex-col p-5 items-center justify-center gap-18 max-w-2xl text-center">
         <h1 className="text-4xl mb-8 sm:mb-18 font-bold">Welcome to MishpatBot!</h1>
         <p className="text-lg">

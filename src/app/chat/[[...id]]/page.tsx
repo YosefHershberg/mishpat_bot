@@ -1,5 +1,5 @@
 import { AppSidebar } from "@/components/sidebar/AppSidebar";
-import ChatDemo from "@/components/chat-demo";
+import Chat from "@/components/chat";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { getConversationById } from "@/lib/actions/conversations.service";
 
@@ -15,7 +15,8 @@ export default async function ChatLayout({ params }: ChatLayoutProps) {
         <SidebarProvider>
             <SidebarTrigger className="sm:hidden flex absolute top-0 left-0 m-2" />
             <AppSidebar />
-            <ChatDemo 
+            <Chat 
+                conversationTitle={conversation?.title}
                 initialMessages={conversation?.messages as any[] ?? null}
             />
         </SidebarProvider>

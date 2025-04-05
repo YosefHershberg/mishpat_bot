@@ -1,16 +1,19 @@
 "use client"
 
 import { useChat, type UseChatOptions } from "@ai-sdk/react"
-import { Chat } from "@/components/ui/chat"
+import { Chat as ChatUI } from "@/components/ui/chat"
 import { useEffect } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
+import { toast } from "sonner"
 
 type ChatDemoProps = {
   initialMessages?: UseChatOptions["initialMessages"],
-  conversationId?: string,
+  conversationTitle?: string,
 }
 
-export default function ChatDemo({ initialMessages }: ChatDemoProps) {
+export default function Chat({
+  initialMessages, conversationTitle = "New Conversation"
+}: ChatDemoProps) {
   const router = useRouter()
   const conversationId = useParams()?.id?.[0];
 
@@ -21,11 +24,8 @@ export default function ChatDemo({ initialMessages }: ChatDemoProps) {
       conversationId,
     },
     onError: (error) => {
-      // toast({
-      //   title: "Error",
-      //   description: error.message,
-      //   variant: "destructive",
-      // })
+      console.log(error);
+      toast(error.message)
     },
   })
 
@@ -34,15 +34,12 @@ export default function ChatDemo({ initialMessages }: ChatDemoProps) {
     data && router.replace(`/chat/${data[0].conversationId}`)
   }, [data?.length]);
 
-  // useEffect(() => {
-  //   console.log(data);
-  // }, [data]);
-
   return (
-    <div className="h-screen w-full flex justify-center sm:p-10 p-5">
-      <Chat
-        className="grow max-w-[50rem]"
+    <div className="w-full h-screen flex flex-col justify-center items-center sm:py-4 px-8">
+      <ChatUI
+        className="max-w-[50rem] grow"
         messages={messages}
+        title={conversationTitle}
         handleSubmit={handleSubmit}
         input={input}
         handleInputChange={handleInputChange}

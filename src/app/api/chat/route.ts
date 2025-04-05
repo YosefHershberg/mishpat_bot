@@ -1,37 +1,36 @@
 import { auth } from '@/lib/auth';
+import { env } from '@/lib/env';
+import gemini from '@/lib/gemini';
 import { prisma } from '@/lib/prisma';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { Conversation } from '@prisma/client';
 import { streamText, StreamData } from 'ai';
 
-// Allow streaming responses up to 30 seconds
-export const maxDuration = 30;
-
 const google = createGoogleGenerativeAI({
-    apiKey: process.env.GOOGLE_API_KEY,
+    apiKey: env.GOOGLE_API_KEY,
 });
 
-export async function POST(req: Request) {
+export async function POST(req: Request, res: Response) {
     const session = await auth()
 
-    if (!session) {
+    if (!session?.user?.id) {
         return new Response("Unauthorized", { status: 401 })
     }
 
     const { messages, conversationId } = await req.json()
 
     let conversation: Conversation | null = null
-    if (!conversationId && session?.user?.id) {
+    if (!conversationId) {
         conversation = await prisma.conversation.create({
             data: {
                 userId: session.user.id,
-                title: messages[0]?.content.slice(0, 100) || "New Conversation",
+                title: "New Conversation",
             },
         })
     }
 
     const actualConversationId = conversationId || conversation?.id
-    
+
     // Add the conversation ID to the stream data
     await prisma.message.create({
         data: {
@@ -45,9 +44,9 @@ export async function POST(req: Request) {
         //@ts-expect-error googleGenerativeAI is not yet typed
         model: google('gemini-2.0-flash-001'),
         messages,
-        data: { conversationId: actualConversationId },
     });
-    const foo = new StreamData()
+
+    const streamData = new StreamData()
 
     result.text.then(async (assistantMessage) => {
         await prisma.message.create({
@@ -58,22 +57,48 @@ export async function POST(req: Request) {
             },
         })
         
-        foo.append({
-            conversationId: actualConversationId,
+        prisma.conversation.findUnique({
+            where: {
+                id: actualConversationId,
+            },
+        }).then(async (conversation) => {
+            if (conversation?.title === 'New Conversation') {
+                const res = await gemini.models.generateContent({
+                    model: "gemini-2.0-flash",
+                    contents: `Generate a concise, descriptive title for a ai chat (max 5 words) summarizing the core issue of this user-assistant conversation: ${JSON.stringify(assistantMessage)}. Respond only with the title.`,
+                });
+                console.log(res.text);
+                prisma.conversation.update({
+                    where: {
+                        id: actualConversationId,
+                    },
+                    data: {
+                        title: res.text,
+                    },
+                }).then((conversation) => {
+                    streamData.append({
+                        conversationId: conversation.id,
+                    })
+                }).then(() => {
+                    streamData.close()
+                })
+            } else {
+                streamData.close()
+            }
         })
     })
 
 
     return result.toDataStreamResponse({
-        data: foo
+        data: streamData
     });
 
     // return createDataStreamResponse({
-//     execute: async (dataStream) => {
+    //     execute: async (dataStream) => {
 
-//         dataStream.writeData({ conversationId: actualConversationId })
+    //         dataStream.writeData({ conversationId: actualConversationId })
 
-//         result.mergeIntoDataStream(dataStream);
-//     }
-// });
+    //         result.mergeIntoDataStream(dataStream);
+    //     }
+    // });
 }
