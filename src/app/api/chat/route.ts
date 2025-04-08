@@ -1,16 +1,16 @@
+import { initConversation } from '@/lib/actions/conversations.service';
+import { saveMessages } from '@/lib/actions/message.service';
 import { auth } from '@/lib/auth';
 import { env } from '@/lib/env';
 import gemini from '@/lib/gemini';
-import { prisma } from '@/lib/prisma';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { Conversation } from '@prisma/client';
 import { streamText, StreamData } from 'ai';
 
 const google = createGoogleGenerativeAI({
     apiKey: env.GOOGLE_API_KEY,
 });
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
     const session = await auth()
 
     if (!session?.user?.id) {
@@ -18,27 +18,6 @@ export async function POST(req: Request, res: Response) {
     }
 
     const { messages, conversationId } = await req.json()
-
-    let conversation: Conversation | null = null
-    if (!conversationId) {
-        conversation = await prisma.conversation.create({
-            data: {
-                userId: session.user.id,
-                title: "New Conversation",
-            },
-        })
-    }
-
-    const actualConversationId = conversationId || conversation?.id
-
-    // Add the conversation ID to the stream data
-    await prisma.message.create({
-        data: {
-            conversationId: actualConversationId,
-            content: messages[messages.length - 1].content,
-            role: "user",
-        },
-    })
 
     const result = streamText({
         //@ts-expect-error googleGenerativeAI is not yet typed
@@ -49,56 +28,45 @@ export async function POST(req: Request, res: Response) {
     const streamData = new StreamData()
 
     result.text.then(async (assistantMessage) => {
-        await prisma.message.create({
-            data: {
-                role: "assistant",
-                content: assistantMessage,
-                conversationId: actualConversationId,
-            },
-        })
-        
-        prisma.conversation.findUnique({
-            where: {
-                id: actualConversationId,
-            },
-        }).then(async (conversation) => {
-            if (conversation?.title === 'New Conversation') {
-                const res = await gemini.models.generateContent({
-                    model: "gemini-2.0-flash",
-                    contents: `Generate a concise, descriptive title for a ai chat (max 5 words) summarizing the core issue of this user-assistant conversation: ${JSON.stringify(assistantMessage)}. Respond only with the title.`,
-                });
-                console.log(res.text);
-                prisma.conversation.update({
-                    where: {
-                        id: actualConversationId,
+
+        if (conversationId) {
+            await saveMessages(conversationId, [
+                {
+                    role: 'user',
+                    content: messages[messages.length - 1].content,
+                },
+                {
+                    role: 'assistant',
+                    content: assistantMessage,
+                },
+            ]);
+        } else {
+            const res = await gemini.models.generateContent({
+                model: "gemini-2.0-flash",
+                contents: `Generate a concise, descriptive title for a ai chat (max 5 words) summarizing the core issue of this user-assistant conversation: ${JSON.stringify(assistantMessage)}. Respond only with the title.`,
+            });
+
+            const conversationId = await initConversation({
+                userId: session?.user?.id as string,
+                messages: [
+                    {
+                        role: 'user',
+                        content: messages[messages.length - 1].content,
                     },
-                    data: {
-                        title: res.text,
+                    {
+                        role: 'assistant',
+                        content: assistantMessage,
                     },
-                }).then((conversation) => {
-                    streamData.append({
-                        conversationId: conversation.id,
-                    })
-                }).then(() => {
-                    streamData.close()
-                })
-            } else {
-                streamData.close()
-            }
-        })
+                ],
+                title: res.text as string,
+            })
+
+            streamData.append({ conversationId })
+        }
     })
 
 
     return result.toDataStreamResponse({
         data: streamData
     });
-
-    // return createDataStreamResponse({
-    //     execute: async (dataStream) => {
-
-    //         dataStream.writeData({ conversationId: actualConversationId })
-
-    //         result.mergeIntoDataStream(dataStream);
-    //     }
-    // });
 }

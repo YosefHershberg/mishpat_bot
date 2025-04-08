@@ -1,23 +1,25 @@
 "use client"
 
+import { useEffect } from "react"
 import { useChat, type UseChatOptions } from "@ai-sdk/react"
 import { Chat as ChatUI } from "@/components/ui/chat"
-import { useEffect } from "react"
-import { useParams, useRouter, useSearchParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { Session } from "next-auth"
 
 type ChatDemoProps = {
   initialMessages?: UseChatOptions["initialMessages"],
   conversationTitle?: string,
+  session: Session
 }
 
 export default function Chat({
-  initialMessages, conversationTitle = "New Conversation"
+  initialMessages, conversationTitle = "New Conversation", session
 }: ChatDemoProps) {
   const router = useRouter()
   const conversationId = useParams()?.id?.[0];
 
-  const { messages, input, handleInputChange, handleSubmit, append, stop, setMessages, isLoading, data } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, append, stop, setMessages, status, data } = useChat({
     api: "/api/chat",
     initialMessages,
     body: {
@@ -43,7 +45,7 @@ export default function Chat({
         handleSubmit={handleSubmit}
         input={input}
         handleInputChange={handleInputChange}
-        isGenerating={isLoading}
+        isGenerating={status === 'streaming'}
         stop={stop}
         append={append}
         setMessages={setMessages}

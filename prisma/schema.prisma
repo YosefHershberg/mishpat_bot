@@ -5,6 +5,7 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 model User {
@@ -87,6 +88,8 @@ model Conversation {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages  Message[]
   title     String
+
+  @@index([userId])
 }
 
 model Message {
@@ -112,5 +115,6 @@ enum MessageRole {
   system
   user
   assistant
+  data
 }
 
