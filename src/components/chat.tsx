@@ -19,7 +19,7 @@ export default function Chat({
   const router = useRouter()
   const conversationId = useParams()?.id?.[0];
 
-  const { messages, input, handleInputChange, handleSubmit, append, stop, setMessages, status, data } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, append, stop, setMessages, status, isLoading, data } = useChat({
     api: "/api/chat",
     initialMessages,
     body: {
@@ -35,6 +35,10 @@ export default function Chat({
     //@ts-expect-error fuck off
     data && router.replace(`/chat/${data[0].conversationId}`)
   }, [data?.length]);
+
+  useEffect(() => {
+    console.log(isLoading);
+  }, [isLoading]);
 
   return (
     <div className="w-full h-screen flex flex-col justify-center items-center sm:py-4 px-8">

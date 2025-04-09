@@ -19,13 +19,16 @@ export async function POST(req: Request) {
 
     const { messages, conversationId } = await req.json()
 
+    const streamData = new StreamData()
+
     const result = streamText({
         //@ts-expect-error googleGenerativeAI is not yet typed
         model: google('gemini-2.0-flash-001'),
         messages,
+        onFinish: () => {
+            
+        }
     });
-
-    const streamData = new StreamData()
 
     result.text.then(async (assistantMessage) => {
 
@@ -63,8 +66,8 @@ export async function POST(req: Request) {
 
             streamData.append({ conversationId })
         }
+        streamData.close();
     })
-
 
     return result.toDataStreamResponse({
         data: streamData
