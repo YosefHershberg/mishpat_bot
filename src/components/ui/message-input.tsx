@@ -205,6 +205,7 @@ export function MessageInput({
             aria-label="Write your prompt here"
             placeholder={placeholder}
             ref={textAreaRef}
+            disabled={isGenerating}
             onPaste={onPaste}
             onKeyDown={onKeyDown}
             className={cn(

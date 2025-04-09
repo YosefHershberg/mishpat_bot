@@ -25,9 +25,6 @@ export async function POST(req: Request) {
         //@ts-expect-error googleGenerativeAI is not yet typed
         model: google('gemini-2.0-flash-001'),
         messages,
-        onFinish: () => {
-            
-        }
     });
 
     result.text.then(async (assistantMessage) => {

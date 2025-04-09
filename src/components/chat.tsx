@@ -5,21 +5,19 @@ import { useChat, type UseChatOptions } from "@ai-sdk/react"
 import { Chat as ChatUI } from "@/components/ui/chat"
 import { useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { Session } from "next-auth"
 
 type ChatDemoProps = {
   initialMessages?: UseChatOptions["initialMessages"],
   conversationTitle?: string,
-  session: Session
 }
 
 export default function Chat({
-  initialMessages, conversationTitle = "New Conversation", session
+  initialMessages, conversationTitle = "New Conversation"
 }: ChatDemoProps) {
   const router = useRouter()
   const conversationId = useParams()?.id?.[0];
 
-  const { messages, input, handleInputChange, handleSubmit, append, stop, setMessages, status, isLoading, data } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, append, stop, setMessages, status, data } = useChat({
     api: "/api/chat",
     initialMessages,
     body: {
@@ -33,12 +31,9 @@ export default function Chat({
 
   useEffect(() => {
     //@ts-expect-error fuck off
-    data && router.replace(`/chat/${data[0].conversationId}`)
+    data && router.replace(`/chat/${data[0].conversationId}`, { reload: false })
+    console.log(data);
   }, [data?.length]);
-
-  useEffect(() => {
-    console.log(isLoading);
-  }, [isLoading]);
 
   return (
     <div className="w-full h-screen flex flex-col justify-center items-center sm:py-4 px-8">
@@ -49,7 +44,7 @@ export default function Chat({
         handleSubmit={handleSubmit}
         input={input}
         handleInputChange={handleInputChange}
-        isGenerating={status === 'streaming'}
+        isGenerating={status !== 'ready' || (!conversationId && messages.length >= 2)}
         stop={stop}
         append={append}
         setMessages={setMessages}

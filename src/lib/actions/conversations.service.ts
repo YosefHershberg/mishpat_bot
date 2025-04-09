@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { Message } from 'ai'
 
 export const getConversationById = async (id: string) => {
+    
     const conversation = await prisma.conversation.findUnique({
         where: {
             id,
