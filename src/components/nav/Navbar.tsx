@@ -9,7 +9,7 @@ export default async function Navbar() {
 
     return (
         <nav
-            className='flex items-center justify-between h-14 px-8 relative w-screen z-100'
+            className='flex items-center justify-between h-14 px-8 py-4 relative w-screen z-100'
             role='navigation'
         >
             <Logo />

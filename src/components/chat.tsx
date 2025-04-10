@@ -32,7 +32,6 @@ export default function Chat({
   useEffect(() => {
     //@ts-expect-error fuck off
     data && router.replace(`/chat/${data[0].conversationId}`, { reload: false })
-    console.log(data);
   }, [data?.length]);
 
   return (

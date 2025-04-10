@@ -15,7 +15,7 @@ export default async function ChatLayout({ params }: ChatLayoutProps) {
         <SidebarProvider>
             <SidebarTrigger className="sm:hidden flex absolute top-0 left-0 m-2" />
             <AppSidebar />
-            <Chat 
+            <Chat
                 conversationTitle={conversation?.title}
                 initialMessages={conversation?.messages as any[] ?? null}
             />
