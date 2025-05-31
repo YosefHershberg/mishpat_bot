@@ -1,3 +1,4 @@
+// @react-compiler
 "use client"
 
 import { useEffect } from "react"
@@ -10,6 +11,8 @@ type ChatDemoProps = {
   initialMessages?: UseChatOptions["initialMessages"],
   conversationTitle?: string,
 }
+
+// TODO: Cache this component because it get re-created every time the 
 
 export default function Chat({
   initialMessages, conversationTitle = "New Conversation"

@@ -1,3 +1,4 @@
+// @react-compiler
 "use client"
 
 import {

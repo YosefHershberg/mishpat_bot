@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
   },
   // Optional: If using API routes with Prisma
   experimental: {
+    reactCompiler: true,
     serverComponentsExternalPackages: ['@prisma/client'],
   },
   images: {

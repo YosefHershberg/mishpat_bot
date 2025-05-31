@@ -11,6 +11,7 @@ export const env = createEnv({
     AUTH_GOOGLE_SECRET: z.string().min(1),
     GOOGLE_REDIRECT_URI: z.string().url().min(1),
     GOOGLE_API_KEY: z.string().min(1),
+    OPENAI_API_KEY: z.string().min(1),
     API_URL: z.string().url().min(1),
   },
   client: {
@@ -27,6 +28,7 @@ export const env = createEnv({
     AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET,
     GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI,
     GOOGLE_API_KEY: process.env.GOOGLE_API_KEY,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     API_URL: process.env.API_URL,
   },
 });
